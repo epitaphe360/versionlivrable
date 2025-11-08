@@ -3,6 +3,14 @@ ShareYourSales API Server - Version Supabase
 Tous les endpoints utilisent Supabase au lieu de MOCK_DATA
 """
 
+import sys
+import io
+
+# Configurer l'encodage UTF-8 pour éviter les erreurs avec les émojis sur Windows
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+
 from fastapi import FastAPI, HTTPException, Depends, status, Request, Response, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse

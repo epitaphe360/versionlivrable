@@ -24,8 +24,7 @@ from auth import get_current_user, require_role
 from services.kyc_service import (
     KYCService,
     DocumentType,
-    KYCStatus,
-    RejectionReason
+    VerificationStatus
 )
 
 router = APIRouter(prefix="/api/kyc", tags=["KYC"])

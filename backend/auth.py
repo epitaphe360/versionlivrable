@@ -45,7 +45,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
         )
 
 
-async def require_role(required_role: str):
+def require_role(required_role: str):
     """
     Dependency to require specific role
     """
