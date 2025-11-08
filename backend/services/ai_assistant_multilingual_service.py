@@ -25,6 +25,7 @@ import logging
 import re
 from collections import Counter
 import statistics
+from supabase_client import supabase
 
 logger = logging.getLogger(__name__)
 
@@ -141,6 +142,7 @@ class AIAssistantMultilingualService:
         self.api_key = api_key
         self.model = model
         self.demo_mode = demo_mode or not api_key
+        self.supabase = supabase
 
         # Configuration API
         self.anthropic_api_url = "https://api.anthropic.com/v1/messages"

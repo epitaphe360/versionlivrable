@@ -30,6 +30,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import httpx
+from supabase_client import supabase
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +68,7 @@ class ContentStudioService:
         # Configuration API génération d'images
         self.openai_api_key = os.getenv("OPENAI_API_KEY", "")
         self.stability_ai_key = os.getenv("STABILITY_AI_KEY", "")
+        self.supabase = supabase
 
         # Mode DEMO par défaut
         self.demo_mode = not bool(self.openai_api_key or self.stability_ai_key)

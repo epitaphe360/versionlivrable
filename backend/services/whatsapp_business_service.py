@@ -19,6 +19,7 @@ import httpx
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 from enum import Enum
+from supabase_client import supabase
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +48,7 @@ class WhatsAppBusinessService:
         self.phone_number_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "")
         self.business_account_id = os.getenv("WHATSAPP_BUSINESS_ACCOUNT_ID", "")
         self.access_token = os.getenv("WHATSAPP_ACCESS_TOKEN", "")
+        self.supabase = supabase
 
         # Mode DEMO par défaut (si pas de token configuré)
         self.demo_mode = not bool(self.access_token)

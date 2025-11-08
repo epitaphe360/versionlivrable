@@ -22,6 +22,7 @@ import httpx
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 from enum import Enum
+from supabase_client import supabase
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,7 @@ class TikTokShopService:
         self.app_secret = os.getenv("TIKTOK_SHOP_APP_SECRET", "")
         self.shop_id = os.getenv("TIKTOK_SHOP_ID", "")
         self.access_token = os.getenv("TIKTOK_SHOP_ACCESS_TOKEN", "")
+        self.supabase = supabase
 
         # Mode DEMO par défaut
         self.demo_mode = not bool(self.app_key and self.app_secret)
