@@ -10,6 +10,10 @@ from uuid import UUID
 from supabase import Client
 
 
+
+import logging
+logger = logging.getLogger(__name__)
+
 class LeadService:
     """Service pour gérer les leads (génération, validation, commissions)"""
     
@@ -385,7 +389,8 @@ class LeadService:
         try:
             result = self.supabase.table('campaign_settings').select('*').eq('campaign_id', campaign_id).single().execute()
             return result.data if result.data else None
-        except:
+        except Exception as e:
+            logger.error(f'Error in operation: {e}', exc_info=True)
             return None
     
     
@@ -404,7 +409,8 @@ class LeadService:
             
             result = query.single().execute()
             return result.data if result.data else None
-        except:
+        except Exception as e:
+            logger.error(f'Error in operation: {e}', exc_info=True)
             return None
     
     

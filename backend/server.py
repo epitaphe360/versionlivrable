@@ -24,7 +24,32 @@ import logging
 from dotenv import load_dotenv
 
 # Importer les helpers Supabase
-from db_helpers import *
+from db_helpers import (
+    get_user_by_id,
+    get_user_by_email,
+    create_user,
+    update_user,
+    hash_password,
+    verify_password,
+    update_user_last_login,
+    get_dashboard_stats,
+    get_all_merchants,
+    get_merchant_by_id,
+    get_all_influencers,
+    get_influencer_by_id,
+    get_influencer_by_user_id,
+    get_merchant_by_user_id,
+    get_all_products,
+    get_product_by_id,
+    get_affiliate_links,
+    create_affiliate_link,
+    get_all_campaigns,
+    create_campaign,
+    get_conversions,
+    get_clicks,
+    get_payouts,
+    update_payout_status,
+)
 from supabase_client import supabase
 
 # Initialize logger
@@ -651,7 +676,8 @@ async def get_influencer_stats(influencer_id: str, payload: dict = Depends(verif
             clicks_response = supabase.table('tracking_links').select('clicks').eq('influencer_id', influencer_id).execute()
             clicks_data = clicks_response.data if clicks_response.data else []
             total_clicks = sum(int(c.get('clicks', 0)) for c in clicks_data)
-        except:
+        except Exception as e:
+            logger.error(f'Error in operation: {e}', exc_info=True)
             total_clicks = len(sales) * 15  # Estimation: 15 clics par vente
         
         # Calculer taux de conversion
@@ -1203,7 +1229,8 @@ async def generate_ai_content(data: AIContentGenerate, payload: dict = Depends(v
         products_response = supabase.table('products').select('name, description').eq('merchant_id', user_id).limit(3).execute()
         products = products_response.data if products_response.data else []
         product_names = [p.get('name', '') for p in products[:2]]
-    except:
+    except Exception as e:
+        logger.error(f'Error in operation: {e}', exc_info=True)
         product_names = []
     
     # Génération de contenu personnalisé (version améliorée sans OpenAI)
@@ -2428,7 +2455,8 @@ async def cmi_webhook(merchant_id: str, request: Request):
         
         try:
             payload = await request.json()
-        except:
+        except Exception as e:
+            logger.error(f'Error in operation: {e}', exc_info=True)
             payload = {}
         
         # Traiter webhook
@@ -2489,7 +2517,8 @@ async def payzen_webhook(merchant_id: str, request: Request):
         # Essayer de parser le JSON
         try:
             payload = await request.json()
-        except:
+        except Exception as e:
+            logger.error(f'Error in operation: {e}', exc_info=True)
             # Si form-urlencoded, convertir
             import urllib.parse
             form_data = urllib.parse.parse_qs(body.decode('utf-8'))
@@ -2544,7 +2573,8 @@ async def sg_maroc_webhook(merchant_id: str, request: Request):
         
         try:
             payload = await request.json()
-        except:
+        except Exception as e:
+            logger.error(f'Error in operation: {e}', exc_info=True)
             payload = {}
         
         # Traiter webhook

@@ -7,7 +7,7 @@ from fastapi import HTTPException, Depends, status
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import datetime
-from advanced_helpers import *
+from advanced_helpers import generate_verification_token, send_verification_email
 
 # ============================================
 # NOUVEAUX MODÈLES PYDANTIC

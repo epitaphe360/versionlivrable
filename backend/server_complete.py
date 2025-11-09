@@ -12,6 +12,7 @@ from typing import Optional, List, Dict, Any, Annotated
 from datetime import datetime, timedelta
 import jwt
 import os
+import sys
 import json
 import bcrypt
 import time
@@ -146,10 +147,23 @@ except ImportError as e:
 # CONFIGURATION
 # ============================================
 
-JWT_SECRET = os.getenv("JWT_SECRET", "bFeUjfAZnOEKWdeOfxSRTEM/67DJMrttpW55WpBOIiK65vMNQMtBRatDy4PSoC3w9bJj7WmbArp5g/KVDaIrnw==")
+# JWT Configuration avec validation stricte
+JWT_SECRET = os.getenv("JWT_SECRET")
+if not JWT_SECRET:
+    print("🔴 ERREUR CRITIQUE: JWT_SECRET non défini dans les variables d'environnement")
+    print("   Générez-en un avec: python -c 'import secrets; print(secrets.token_urlsafe(64))'")
+    print("   Puis ajoutez-le dans votre fichier .env")
+    sys.exit(1)
+
+if len(JWT_SECRET) < 32:
+    print(f"⚠️  ATTENTION: JWT_SECRET trop court ({len(JWT_SECRET)} chars, minimum 32 requis)")
+    print("   Utilisez un secret plus long pour une sécurité optimale")
+    sys.exit(1)
+
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION = int(os.getenv("JWT_EXPIRATION", "86400"))  # 24 heures par défaut
 security = HTTPBearer()
+print(f"✅ JWT_SECRET chargé avec succès ({len(JWT_SECRET)} caractères)")
 
 # Rate Limiter Configuration
 limiter = Limiter(key_func=get_remote_address, default_limits=["100/minute"])
@@ -2930,8 +2944,9 @@ async def get_analytics_top_products(
                 .single() \
                 .execute()
             merchant_id = merchant_response.data["id"]
-        except:
-            pass
+        except Exception as e:
+            logger.error(f'Unexpected error: {e}', exc_info=True)
+            # TODO: Gérer cette erreur correctement
     
     if DB_QUERIES_AVAILABLE:
         try:

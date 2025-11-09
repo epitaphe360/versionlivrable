@@ -8,7 +8,7 @@ import jwt
 import bcrypt
 import os
 from dotenv import load_dotenv
-from mock_data import *
+from mock_data import MOCK_USERS, MOCK_PRODUCTS
 
 # Charger les variables d'environnement
 load_dotenv()

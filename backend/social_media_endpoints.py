@@ -19,6 +19,7 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field, validator
 from datetime import datetime, timedelta
 import structlog
+import os
 from enum import Enum
 
 from services.social_media_service import (
@@ -719,8 +720,15 @@ async def instagram_webhook_verify(
 
     Instagram envoie cette requête pour vérifier que le webhook est légitime
     """
-    # TODO: Vérifier le verify_token
-    VERIFY_TOKEN = "your-verify-token"  # À stocker en variable d'environnement
+    # Charger token de vérification depuis variable d'environnement
+    VERIFY_TOKEN = os.getenv("INSTAGRAM_WEBHOOK_VERIFY_TOKEN")
+    
+    if not VERIFY_TOKEN:
+        logger.warning("INSTAGRAM_WEBHOOK_VERIFY_TOKEN non défini - webhooks Instagram désactivés")
+        raise HTTPException(
+            status_code=500,
+            detail="Instagram webhook verification not configured"
+        )
 
     if hub_mode == "subscribe" and hub_verify_token == VERIFY_TOKEN:
         logger.info("instagram_webhook_verified")

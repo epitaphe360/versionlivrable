@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, timedelta
 import jwt
-from mock_data import *
+from mock_data import MOCK_USERS
 
 app = FastAPI(title="Tracknow API")
 

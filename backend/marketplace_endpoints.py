@@ -206,7 +206,8 @@ async def get_product_detail(product_id: str):
         # Incrémenter vues (async)
         try:
             supabase.rpc('increment_product_views', {'p_product_id': product_id}).execute()
-        except:
+        except Exception as e:
+            logger.error(f'Error in operation: {e}', exc_info=True)
             pass  # Non-bloquant
 
         return {
