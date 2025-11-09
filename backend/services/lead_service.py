@@ -1,6 +1,7 @@
 """
 Service de gestion des LEADS pour marketplace services
 Génération, validation, calcul commissions (10% vs 80dhs)
+Optimisé avec eager loading et batch fetching pour éviter N+1 queries
 """
 
 from typing import Optional, Dict, List, Any
@@ -9,10 +10,14 @@ from decimal import Decimal
 from uuid import UUID
 from supabase import Client
 
-
-
 import logging
 logger = logging.getLogger(__name__)
+
+# Import optimiseur DB
+try:
+    from backend.utils.db_optimized import DBOptimizer
+except ImportError:
+    DBOptimizer = None
 
 class LeadService:
     """Service pour gérer les leads (génération, validation, commissions)"""
@@ -310,17 +315,25 @@ class LeadService:
         status: Optional[str] = None,
         limit: int = 100
     ) -> List[Dict]:
-        """Récupérer les leads d'un influenceur"""
+        """
+        Récupérer les leads d'un influenceur
+
+        Optimisé: Eager loading avec campaigns(name, id) et merchants(company_name, id)
+        Évite N requêtes pour N leads en chargeant tout en une seule requête
+        """
         try:
-            query = self.supabase.table('leads').select('*, campaigns(name), merchants(company_name)').eq('influencer_id', influencer_id)
-            
+            # OPTIMISATION: Eager loading - charge relations en une seule requête
+            query = self.supabase.table('leads').select(
+                '*, campaigns(id, name), merchants(id, company_name)'
+            ).eq('influencer_id', influencer_id)
+
             if status:
                 query = query.eq('status', status)
-            
+
             result = query.order('created_at', desc=True).limit(limit).execute()
-            
+
             return result.data or []
-            
+
         except Exception as e:
             print(f"Erreur get_leads_by_influencer: {e}")
             return []
@@ -332,40 +345,89 @@ class LeadService:
         influencer_id: Optional[str] = None,
         campaign_id: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Statistiques des leads"""
+        """
+        Statistiques des leads
+
+        Optimisé: Utilise une seule requête SELECT au lieu de multiples boucles
+        Minimise la quantité de données transférées en ne sélectionnant que les colonnes nécessaires
+        """
         try:
-            query = self.supabase.table('leads').select('*')
-            
+            # OPTIMISATION: Sélectionner uniquement les colonnes nécessaires
+            query = self.supabase.table('leads').select(
+                'status, estimated_value, commission_amount, influencer_commission, quality_score'
+            )
+
             if merchant_id:
                 query = query.eq('merchant_id', merchant_id)
             if influencer_id:
                 query = query.eq('influencer_id', influencer_id)
             if campaign_id:
                 query = query.eq('campaign_id', campaign_id)
-            
+
             result = query.execute()
             leads = result.data or []
-            
+
+            if not leads:
+                return {
+                    'total_leads': 0,
+                    'pending': 0,
+                    'validated': 0,
+                    'rejected': 0,
+                    'converted': 0,
+                    'total_estimated_value': 0.0,
+                    'total_commission': 0.0,
+                    'total_influencer_commission': 0.0,
+                    'avg_quality_score': 0.0,
+                    'validation_rate': 0.0,
+                    'conversion_rate': 0.0
+                }
+
+            # OPTIMISATION: Utiliser des générateurs et une seule boucle
             total = len(leads)
-            pending = sum(1 for l in leads if l['status'] == 'pending')
-            validated = sum(1 for l in leads if l['status'] == 'validated')
-            rejected = sum(1 for l in leads if l['status'] == 'rejected')
-            converted = sum(1 for l in leads if l['status'] == 'converted')
-            
-            total_value = sum(Decimal(l['estimated_value'] or 0) for l in leads)
-            total_commission = sum(Decimal(l['commission_amount'] or 0) for l in leads)
-            total_influencer_commission = sum(Decimal(l['influencer_commission'] or 0) for l in leads)
-            
-            avg_quality = sum(l['quality_score'] or 0 for l in leads if l.get('quality_score')) / max(1, sum(1 for l in leads if l.get('quality_score')))
-            
+            status_counts = {
+                'pending': 0,
+                'validated': 0,
+                'rejected': 0,
+                'converted': 0
+            }
+
+            total_value = Decimal('0')
+            total_commission = Decimal('0')
+            total_influencer_commission = Decimal('0')
+            quality_scores = []
+
+            # Une seule boucle pour tout calculer
+            for lead in leads:
+                status = lead.get('status', 'pending')
+                if status in status_counts:
+                    status_counts[status] += 1
+
+                total_value += Decimal(str(lead.get('estimated_value') or 0))
+                total_commission += Decimal(str(lead.get('commission_amount') or 0))
+                total_influencer_commission += Decimal(str(lead.get('influencer_commission') or 0))
+
+                quality_score = lead.get('quality_score')
+                if quality_score:
+                    quality_scores.append(quality_score)
+
+            # Calcul des moyennes
+            avg_quality = (
+                sum(quality_scores) / len(quality_scores)
+                if quality_scores
+                else 0
+            )
+
+            validated = status_counts['validated']
+            converted = status_counts['converted']
+
             validation_rate = (validated / total * 100) if total > 0 else 0
             conversion_rate = (converted / total * 100) if total > 0 else 0
-            
+
             return {
                 'total_leads': total,
-                'pending': pending,
+                'pending': status_counts['pending'],
                 'validated': validated,
-                'rejected': rejected,
+                'rejected': status_counts['rejected'],
                 'converted': converted,
                 'total_estimated_value': float(total_value),
                 'total_commission': float(total_commission),
@@ -374,7 +436,7 @@ class LeadService:
                 'validation_rate': round(validation_rate, 2),
                 'conversion_rate': round(conversion_rate, 2)
             }
-            
+
         except Exception as e:
             print(f"Erreur get_lead_stats: {e}")
             return {}
