@@ -25,10 +25,7 @@ export function register(config) {
         checkValidServiceWorker(swUrl, config);
 
         navigator.serviceWorker.ready.then(() => {
-          console.log(
-            'Cette application fonctionne en mode PWA avec cache-first sur localhost.'
-          );
-        });
+          });
       } else {
         registerValidSW(swUrl, config);
       }
@@ -40,8 +37,6 @@ function registerValidSW(swUrl, config) {
   navigator.serviceWorker
     .register(swUrl)
     .then((registration) => {
-      console.log('✅ Service Worker enregistré avec succès');
-
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
 
@@ -53,8 +48,6 @@ function registerValidSW(swUrl, config) {
           if (installingWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
               // Nouvelle version disponible
-              console.log('🔄 Nouvelle version disponible ! Rechargez pour mettre à jour.');
-
               if (config && config.onUpdate) {
                 config.onUpdate(registration);
               }
@@ -63,8 +56,6 @@ function registerValidSW(swUrl, config) {
               showUpdateNotification();
             } else {
               // Contenu mis en cache pour utilisation offline
-              console.log('📦 Contenu mis en cache pour utilisation offline.');
-
               if (config && config.onSuccess) {
                 config.onSuccess(registration);
               }
@@ -80,12 +71,10 @@ function registerValidSW(swUrl, config) {
 
       // Enregistrer pour background sync (si supporté)
       if ('sync' in registration) {
-        console.log('✅ Background Sync supporté');
-      }
+        }
 
       // Enregistrer pour periodic sync (si supporté)
       if ('periodicSync' in registration) {
-        console.log('✅ Periodic Background Sync supporté');
         registerPeriodicSync(registration);
       }
     })
@@ -115,8 +104,7 @@ function checkValidServiceWorker(swUrl, config) {
       }
     })
     .catch(() => {
-      console.log('❌ Pas de connexion Internet. L\'app fonctionne en mode offline.');
-    });
+      });
 }
 
 export function unregister() {
@@ -148,8 +136,6 @@ async function registerPushNotifications(registration) {
     const permission = await Notification.requestPermission();
 
     if (permission === 'granted') {
-      console.log('✅ Notifications Push autorisées');
-
       // Souscrire aux notifications push
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
@@ -158,13 +144,10 @@ async function registerPushNotifications(registration) {
         )
       });
 
-      console.log('✅ Abonné aux notifications push:', subscription);
-
       // Envoyer la subscription au serveur
       await sendSubscriptionToServer(subscription);
     } else {
-      console.log('❌ Notifications Push refusées');
-    }
+      }
   } catch (error) {
     console.error('❌ Erreur lors de l\'enregistrement des push notifications:', error);
   }
@@ -177,8 +160,7 @@ async function registerPeriodicSync(registration) {
       minInterval: 24 * 60 * 60 * 1000 // 24 heures
     });
 
-    console.log('✅ Periodic Sync enregistré');
-  } catch (error) {
+    } catch (error) {
     console.error('❌ Erreur Periodic Sync:', error);
   }
 }
@@ -206,7 +188,6 @@ async function sendSubscriptionToServer(subscription) {
     const token = localStorage.getItem('token');
 
     if (!token) {
-      console.log('⚠️ Utilisateur non connecté, subscription non envoyée');
       return;
     }
 
@@ -219,8 +200,7 @@ async function sendSubscriptionToServer(subscription) {
       body: JSON.stringify(subscription)
     });
 
-    console.log('✅ Subscription envoyée au serveur');
-  } catch (error) {
+    } catch (error) {
     console.error('❌ Erreur envoi subscription:', error);
   }
 }
@@ -232,8 +212,7 @@ export function checkIfPWA() {
                 document.referrer.includes('android-app://');
 
   if (isPWA) {
-    console.log('✅ App lancée en mode PWA');
-  }
+    }
 
   return isPWA;
 }
@@ -265,10 +244,8 @@ export function showInstallPrompt() {
         // Attendre la réponse de l'utilisateur
         deferredPrompt.userChoice.then((choiceResult) => {
           if (choiceResult.outcome === 'accepted') {
-            console.log('✅ Utilisateur a accepté l\'installation');
-          } else {
-            console.log('❌ Utilisateur a refusé l\'installation');
-          }
+            } else {
+            }
 
           deferredPrompt = null;
         });
@@ -277,8 +254,6 @@ export function showInstallPrompt() {
   });
 
   window.addEventListener('appinstalled', () => {
-    console.log('✅ PWA installée avec succès !');
-
     // Analytics ou autre action
   });
 }

@@ -15,8 +15,7 @@ const SecuritySettings = () => {
 
   const handlePasswordChange = (e) => {
     e.preventDefault();
-    console.log('Changing password');
-  };
+    };
 
   return (
     <div className="space-y-6" data-testid="security-settings">

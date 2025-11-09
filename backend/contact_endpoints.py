@@ -19,6 +19,7 @@ import structlog
 
 from auth import get_current_user, get_current_admin
 from supabase_client import supabase
+from backend.utils.db_safe import build_or_search
 
 router = APIRouter(prefix="/api/contact", tags=["Contact"])
 logger = structlog.get_logger()
@@ -236,10 +237,8 @@ async def get_all_contact_messages(
 
         if search:
             # Note: Supabase ne supporte pas le full-text search facilement
-            # On peut faire une recherche basique
-            query = query.or_(
-                f"name.ilike.%{search}%,email.ilike.%{search}%,subject.ilike.%{search}%,message.ilike.%{search}%"
-            )
+            # On peut faire une recherche basique (sécurisé contre SQL injection)
+            query = build_or_search(query, ['name', 'email', 'subject', 'message'], search)
 
         query = query.order('created_at', desc=True).range(offset, offset + limit - 1)
 

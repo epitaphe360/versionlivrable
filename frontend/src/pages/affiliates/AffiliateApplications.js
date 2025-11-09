@@ -34,12 +34,10 @@ const AffiliateApplications = () => {
   ]);
 
   const handleApprove = (id) => {
-    console.log('Approve:', id);
-  };
+    };
 
   const handleReject = (id) => {
-    console.log('Reject:', id);
-  };
+    };
 
   const columns = useMemo(() => [
     {

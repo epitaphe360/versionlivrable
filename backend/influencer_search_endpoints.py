@@ -5,6 +5,7 @@ Endpoints pour la recherche avancée d'influenceurs
 from fastapi import HTTPException, Depends, Query
 from typing import Optional, List
 from db_helpers import get_supabase_client, get_user_by_id
+from backend.utils.db_safe import safe_ilike
 
 
 def add_influencer_search_endpoints(app, verify_token):
@@ -95,7 +96,7 @@ def add_influencer_search_endpoints(app, verify_token):
             query = query.eq("influencers.platform", platform)
 
         if location:
-            query = query.ilike("location", f"%{location}%")
+            query = safe_ilike(query, "location", location, wildcard="both")
 
         if verified_only:
             query = query.eq("is_verified", True)

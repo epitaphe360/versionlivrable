@@ -1,3 +1,4 @@
+import { logger } from './utils/logger';
 import React, { useState, useEffect } from 'react';
 import { 
   CreditCard, 
@@ -47,7 +48,7 @@ const SubscriptionManagement = () => {
         const usageRes = await api.get('/api/subscriptions/usage');
         setUsage(usageRes.data);
       } catch (err) {
-        console.warn('Could not fetch usage:', err);
+        logger.warning('Could not fetch usage:', err);
         // Continue même si usage échoue
       }
       
@@ -56,7 +57,7 @@ const SubscriptionManagement = () => {
         const plansRes = await api.get('/api/subscriptions/plans');
         setAvailablePlans(plansRes.data);
       } catch (err) {
-        console.warn('Could not fetch plans:', err);
+        logger.warning('Could not fetch plans:', err);
         // Continue même si plans échoue
       }
       

@@ -29,12 +29,10 @@ const AdvertiserRegistrations = () => {
   const [loading, setLoading] = useState(false);
 
   const handleApprove = (id) => {
-    console.log('Approve:', id);
     // API call to approve
   };
 
   const handleReject = (id) => {
-    console.log('Reject:', id);
     // API call to reject
   };
 

@@ -1,3 +1,4 @@
+import { logger } from './utils/logger';
 import { useState, useEffect, useCallback } from 'react';
 
 /**
@@ -25,7 +26,7 @@ export const useLocalStorage = (key, initialValue) => {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error);
+      logger.warning(`Error reading localStorage key "${key}":`, error);
       return initialValue;
     }
   }, [initialValue, key]);
@@ -40,7 +41,7 @@ export const useLocalStorage = (key, initialValue) => {
     (value) => {
       // SSR guard
       if (typeof window === 'undefined') {
-        console.warn(`Tried setting localStorage key "${key}" even though environment is not a client`);
+        logger.warning(`Tried setting localStorage key "${key}" even though environment is not a client`);
         return;
       }
 
@@ -61,7 +62,7 @@ export const useLocalStorage = (key, initialValue) => {
           })
         );
       } catch (error) {
-        console.warn(`Error setting localStorage key "${key}":`, error);
+        logger.warning(`Error setting localStorage key "${key}":`, error);
       }
     },
     [key, storedValue]
@@ -73,7 +74,7 @@ export const useLocalStorage = (key, initialValue) => {
   const removeValue = useCallback(() => {
     // SSR guard
     if (typeof window === 'undefined') {
-      console.warn(`Tried removing localStorage key "${key}" even though environment is not a client`);
+      logger.warning(`Tried removing localStorage key "${key}" even though environment is not a client`);
       return;
     }
 
@@ -88,7 +89,7 @@ export const useLocalStorage = (key, initialValue) => {
         })
       );
     } catch (error) {
-      console.warn(`Error removing localStorage key "${key}":`, error);
+      logger.warning(`Error removing localStorage key "${key}":`, error);
     }
   }, [key, initialValue]);
 

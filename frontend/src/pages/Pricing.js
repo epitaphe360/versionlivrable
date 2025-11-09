@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Check, X, Zap, TrendingUp, Users, Shield, Sparkles, ArrowRight } from 'lucide-react';
 import axios from 'axios';
 import Navigation from '../components/Navigation';
+import SEOHead from '../components/SEO/SEOHead';
+import SEO_CONFIG from '../config/seo';
 import '../pages/MarketplaceAnimations.css';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
@@ -134,6 +136,7 @@ const Pricing = () => {
 
   return (
     <>
+      <SEOHead {...SEO_CONFIG.pricing} />
       <Navigation />
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
         {/* Hero Section - Ultra Dynamique */}

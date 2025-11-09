@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Sparkles, AlertCircle, Shield } from 'lucide-react';
 import Button from '../components/common/Button';
+import SEOHead from '../components/SEO/SEOHead';
+import SEO_CONFIG from '../config/seo';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -142,7 +144,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-12 px-4">
+    <>
+      <SEOHead {...SEO_CONFIG.login} />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-12 px-4">
       <div className="max-w-md w-full">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -500,7 +504,8 @@ const Login = () => {
           </Link>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

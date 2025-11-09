@@ -15,7 +15,6 @@ const Support = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Support ticket:', formData);
     toast.success('Votre demande a été envoyée avec succès! Notre équipe vous répondra dans les plus brefs délais.');
     setFormData({ subject: '', category: 'general', priority: 'medium', message: '' });
   };

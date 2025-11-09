@@ -16,18 +16,15 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
 
     if (!token) {
-      console.log('❌ Aucun token trouvé');
       setLoading(false);
       setSessionStatus('expired');
       return false;
     }
 
     try {
-      console.log('🔍 Vérification de la session...');
       const response = await api.get('/api/auth/me');
 
       if (response.data) {
-        console.log('✅ Session vérifiée et valide');
         setUser(response.data);
         localStorage.setItem('user', JSON.stringify(response.data));
         setSessionStatus('active');
@@ -55,7 +52,6 @@ export const AuthProvider = ({ children }) => {
     const intervalId = setInterval(() => {
       const token = localStorage.getItem('token');
       if (token) {
-        console.log('🔄 Vérification périodique de la session...');
         verifySession();
       }
     }, SESSION_CHECK_INTERVAL);
@@ -101,10 +97,8 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       // Appeler le backend pour déconnexion côté serveur
-      console.log('🚪 Déconnexion en cours...');
       await api.post('/api/auth/logout');
-      console.log('✅ Déconnexion réussie côté serveur');
-    } catch (error) {
+      } catch (error) {
       console.error('⚠️ Erreur lors de la déconnexion backend:', error.message);
       // Continue même si le backend échoue
     } finally {
@@ -113,8 +107,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('user');
       setUser(null);
       setSessionStatus('expired');
-      console.log('✅ Session locale nettoyée');
-    }
+      }
   };
 
   // Fonction pour rafraîchir manuellement la session

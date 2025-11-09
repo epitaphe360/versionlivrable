@@ -5,6 +5,7 @@ Remplace toutes les données statiques par des requêtes Supabase réelles
 from typing import List, Dict, Optional, Any
 from datetime import datetime, timedelta
 from supabase_client import get_supabase_client
+from backend.utils.db_safe import safe_ilike
 
 # ============================================
 # ANALYTICS - INFLUENCER
@@ -601,9 +602,9 @@ async def get_all_products(
         if max_price is not None:
             query = query.lte("price", max_price)
         
-        # Recherche textuelle (simple)
+        # Recherche textuelle (simple, sécurisé contre SQL injection)
         if search:
-            query = query.ilike("name", f"%{search}%")
+            query = safe_ilike(query, "name", search, wildcard="both")
         
         # Tri
         if sort_by == "price_asc":

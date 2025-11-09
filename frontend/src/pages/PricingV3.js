@@ -76,8 +76,7 @@ const PricingV3 = () => {
       setCurrentSubscription(response.data);
     } catch (err) {
       // User may not have a subscription yet
-      console.log('No current subscription');
-    }
+      }
   };
 
   const handleSubscribe = async (planId) => {
