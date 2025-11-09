@@ -69,8 +69,29 @@ L'application s'ouvre automatiquement dans votre navigateur.
 
 ## 🔑 COMPTES DE TEST
 
-Cliquez sur les boutons colorés dans la page de login:
+**⚠️ NOUVEAU - Mot de passe unique pour TOUS : `Test123!`**
 
+### Cliquez sur les boutons colorés dans la page de login:
+
+#### 👨‍💼 Admin
+- 🟣 **Admin** (admin@getyourshare.com / **Test123!**) - ENTERPRISE
+
+#### 🏪 Marchands (3 niveaux)
+- 🔵 **Boutique Maroc** (boutique.maroc@getyourshare.com / **Test123!**) - STARTER
+- 🔵 **Luxury Crafts** (luxury.crafts@getyourshare.com / **Test123!**) - PRO
+- 🔵 **ElectroMaroc** ⭐ (electro.maroc@getyourshare.com / **Test123!**) - ENTERPRISE
+
+#### 🎯 Influenceurs (3 niveaux)
+- 🌸 **Hassan Oudrhiri** (hassan.oudrhiri@getyourshare.com / **Test123!**) - STARTER
+- 🌸 **Sarah Benali** (sarah.benali@getyourshare.com / **Test123!**) - PRO
+- 🌸 **Karim Benjelloun** ⭐ (karim.benjelloun@getyourshare.com / **Test123!**) - PRO
+
+#### 💼 Commercial
+- 🟣 **Sofia Chakir** (sofia.chakir@getyourshare.com / **Test123!**) - ADMIN
+
+---
+
+### 📋 Anciens comptes (toujours actifs)
 - 🟣 **Admin** (admin@shareyoursales.com / Admin123!)
 - 🔵 **Marchand** (contact@techstyle.fr / Merchant123!)
 - 🌸 **Influenceur** (emma.style@instagram.com / Influencer123!)

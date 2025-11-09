@@ -163,6 +163,35 @@ cd backend
 
 ## 🔑 COMPTES DE TEST
 
+**⚠️ NOUVEAU - Mot de passe unique : `Test123!`**
+
+### 👨‍💼 Admin - Accès Total
+| Email | Mot de passe | 2FA | Abonnement |
+|-------|--------------|-----|------------|
+| admin@getyourshare.com | **Test123!** | ❌ | ENTERPRISE |
+
+### 🏪 Marchands (3 niveaux)
+| Entreprise | Email | Mot de passe | Abonnement |
+|------------|-------|--------------|------------|
+| **Boutique Maroc** | boutique.maroc@getyourshare.com | **Test123!** | STARTER |
+| **Luxury Crafts** | luxury.crafts@getyourshare.com | **Test123!** | PRO |
+| **ElectroMaroc** ⭐ | electro.maroc@getyourshare.com | **Test123!** | ENTERPRISE |
+
+### 🎯 Influenceurs (3 niveaux)
+| Nom | Email | Mot de passe | Abonnement | Audience |
+|-----|-------|--------------|------------|----------|
+| **Hassan Oudrhiri** | hassan.oudrhiri@getyourshare.com | **Test123!** | STARTER | 67K |
+| **Sarah Benali** | sarah.benali@getyourshare.com | **Test123!** | PRO | 125K |
+| **Karim Benjelloun** ⭐ | karim.benjelloun@getyourshare.com | **Test123!** | PRO | 285K |
+
+### 💼 Commercial
+| Nom | Email | Mot de passe | Rôle |
+|-----|-------|--------------|------|
+| **Sofia Chakir** | sofia.chakir@getyourshare.com | **Test123!** | ADMIN |
+
+---
+
+### 📋 Anciens Comptes (toujours actifs)
 | Rôle | Email | Password | Bouton |
 |------|-------|----------|--------|
 | 👤 **Admin** | admin@shareyoursales.com | Admin123! | 🟣 Violet |

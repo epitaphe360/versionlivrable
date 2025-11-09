@@ -62,13 +62,47 @@ npm start
 
 ## 🔐 Se Connecter
 
+**⚠️ NOUVEAU - Mot de passe unique pour TOUS les comptes : `Test123!`**
+
+### 👨‍💼 Admin - Accès Total
+
+| Email | Mot de passe | 2FA | Abonnement |
+|-------|--------------|-----|------------|
+| admin@getyourshare.com | **Test123!** | ❌ Désactivé | ENTERPRISE |
+
+### 🏪 Marchands (3 niveaux d'abonnement)
+
+| Entreprise | Email | Mot de passe | Abonnement | Secteur |
+|------------|-------|--------------|------------|---------|
+| **Boutique Maroc** | boutique.maroc@getyourshare.com | **Test123!** | STARTER | Artisanat traditionnel |
+| **Luxury Crafts** | luxury.crafts@getyourshare.com | **Test123!** | PRO | Artisanat Premium |
+| **ElectroMaroc** ⭐ | electro.maroc@getyourshare.com | **Test123!** | ENTERPRISE | Électronique & High-Tech |
+
+### 🎯 Influenceurs (3 niveaux d'abonnement)
+
+| Nom | Email | Mot de passe | Abonnement | Audience | Niche |
+|-----|-------|--------------|------------|----------|-------|
+| **Hassan Oudrhiri** | hassan.oudrhiri@getyourshare.com | **Test123!** | STARTER | 67K | Food & Cuisine |
+| **Sarah Benali** | sarah.benali@getyourshare.com | **Test123!** | PRO | 125K | Lifestyle |
+| **Karim Benjelloun** ⭐ | karim.benjelloun@getyourshare.com | **Test123!** | PRO | 285K | Tech & Gaming |
+
+### 💼 Commercial
+
+| Nom | Email | Mot de passe | Rôle | Fonction |
+|-----|-------|--------------|------|----------|
+| **Sofia Chakir** | sofia.chakir@getyourshare.com | **Test123!** | ADMIN | Business Development |
+
+---
+
+### 📋 Anciens Comptes (toujours actifs)
+
 | Rôle | Email | Mot de passe | 2FA |
 |------|-------|--------------|-----|
-| **Admin** | admin@shareyoursales.com | admin123 | 123456 |
-| **Merchant** | contact@techstyle.fr | merchant123 | 123456 |
-| **Influencer** | emma.style@instagram.com | influencer123 | 123456 |
+| Admin (ancien) | admin@shareyoursales.com | admin123 | 123456 |
+| Merchant (ancien) | contact@techstyle.fr | merchant123 | 123456 |
+| Influencer (ancien) | emma.style@instagram.com | influencer123 | 123456 |
 
-**Note:** Les comptes de test ont des abonnements actifs pour tester toutes les fonctionnalités !
+**Note:** Les nouveaux comptes ont été créés avec la 2FA désactivée pour faciliter les tests. Tous les comptes de test ont des abonnements actifs !
 
 ---
 
