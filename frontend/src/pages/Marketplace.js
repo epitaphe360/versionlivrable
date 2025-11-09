@@ -4,8 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../utils/api';
 import Card from '../components/common/Card';
-import { 
-  Search, Filter, Star, TrendingUp, Package, 
+import SEOHead from '../components/SEO/SEOHead';
+import SEO_CONFIG from '../config/seo';
+import {
+  Search, Filter, Star, TrendingUp, Package,
   Users, ShoppingBag, Sparkles, Eye, Target,
   Heart, ExternalLink
 } from 'lucide-react';
@@ -50,19 +52,13 @@ const MarketplaceNew = () => {
   ];
 
   const handleGenerateLink = async (productId) => {
-    console.log('Generate link called for product:', productId);
-    console.log('User role:', user?.role);
-    
     if (user?.role !== 'influencer') {
       toast.warning('Vous devez être un influenceur pour générer des liens');
       return;
     }
 
     try {
-      console.log('Sending API request...');
       const response = await api.post('/api/affiliate-links/generate', { product_id: productId });
-      console.log('API Response:', response.data);
-      
       if (response.data.link) {
         const linkUrl = response.data.link.short_url || response.data.link.full_url;
         
@@ -74,8 +70,7 @@ const MarketplaceNew = () => {
             copied = true;
           }
         } catch (err) {
-          console.log('Could not copy to clipboard:', err);
-        }
+          }
         
         toast.success(
           `Lien généré avec succès ! ${copied ? 'Copié dans le presse-papier.' : ''}`,
@@ -141,7 +136,9 @@ const MarketplaceNew = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <>
+      <SEOHead {...SEO_CONFIG.marketplace} />
+      <div className="space-y-8">
       {/* Header */}
       <div className="text-center">
         <div className="inline-flex items-center space-x-3 mb-4">
@@ -446,7 +443,8 @@ const MarketplaceNew = () => {
           Rejoindre en tant qu'Entreprise
         </button>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

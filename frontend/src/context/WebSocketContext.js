@@ -36,11 +36,9 @@ export const WebSocketProvider = ({ children }) => {
 
   const ws = useWebSocket(wsUrl, {
     onOpen: () => {
-      console.log('Connected to notification server');
       info('Connecté au serveur de notifications');
     },
     onClose: () => {
-      console.log('Disconnected from notification server');
       warning('Déconnecté du serveur de notifications');
     },
     onError: (error) => {
@@ -60,8 +58,6 @@ export const WebSocketProvider = ({ children }) => {
    */
   useEffect(() => {
     const unsubscribe = ws.on(EVENT_TYPES.COMMISSION_CREATED, (data) => {
-      console.log('Commission created:', data);
-      
       success(`Nouvelle commission de ${data.amount}€ !`, {
         duration: 10000,
       });
@@ -79,8 +75,6 @@ export const WebSocketProvider = ({ children }) => {
    */
   useEffect(() => {
     const unsubscribe = ws.on(EVENT_TYPES.COMMISSION_UPDATED, (data) => {
-      console.log('Commission updated:', data);
-      
       info(`Commission ${data.commission_id} mise à jour`);
 
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.commissions });
@@ -95,8 +89,6 @@ export const WebSocketProvider = ({ children }) => {
    */
   useEffect(() => {
     const unsubscribe = ws.on(EVENT_TYPES.PAYMENT_CREATED, (data) => {
-      console.log('Payment created:', data);
-      
       success(`Nouveau paiement de ${data.amount}€ créé !`);
 
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.payments });
@@ -111,8 +103,6 @@ export const WebSocketProvider = ({ children }) => {
    */
   useEffect(() => {
     const unsubscribe = ws.on(EVENT_TYPES.PAYMENT_STATUS_CHANGED, (data) => {
-      console.log('Payment status changed:', data);
-      
       const statusMessages = {
         pending: 'en attente',
         processing: 'en cours de traitement',
@@ -142,8 +132,6 @@ export const WebSocketProvider = ({ children }) => {
    */
   useEffect(() => {
     const unsubscribe = ws.on(EVENT_TYPES.SALE_CREATED, (data) => {
-      console.log('Sale created:', data);
-      
       info(`Nouvelle vente enregistrée : ${data.amount}€`);
 
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.sales });
@@ -158,8 +146,6 @@ export const WebSocketProvider = ({ children }) => {
    */
   useEffect(() => {
     const unsubscribe = ws.on(EVENT_TYPES.DASHBOARD_UPDATE, (data) => {
-      console.log('Dashboard update:', data);
-      
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboard });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.dashboardStats(user?.role) });
     });

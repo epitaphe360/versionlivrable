@@ -56,7 +56,6 @@ const InfluencerDashboard = () => {
         setMinPayoutAmount(response.data.min_payout_amount);
       }
     } catch (error) {
-      console.log('Could not fetch min payout amount, using default:', error);
       // Garder la valeur par défaut de 50€
     }
   };

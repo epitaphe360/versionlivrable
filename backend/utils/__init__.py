@@ -1,11 +1,24 @@
 """
-Package utilitaires pour l'application backend
+Backend utilities package
+Contains security helpers and common utilities
 """
 
-from .supabase_client import get_supabase_client, init_supabase, set_supabase_client
+from .db_safe import (
+    sanitize_like_pattern,
+    sanitize_sql_identifier,
+    safe_ilike,
+    build_or_search,
+    validate_sort_field,
+    validate_order,
+    safe_numeric_filter,
+)
 
 __all__ = [
-    'get_supabase_client',
-    'init_supabase',
-    'set_supabase_client',
+    "sanitize_like_pattern",
+    "sanitize_sql_identifier",
+    "safe_ilike",
+    "build_or_search",
+    "validate_sort_field",
+    "validate_order",
+    "safe_numeric_filter",
 ]

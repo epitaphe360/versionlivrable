@@ -434,8 +434,7 @@ const CreateCampaign = () => {
             <FileUpload
               onUploadComplete={(urls) => {
                 setUploadedFiles([...uploadedFiles, ...urls]);
-                console.log('Fichiers uploadés:', urls);
-              }}
+                }}
               accept="image/*,.pdf,.zip"
               maxFiles={10}
               maxSize={10 * 1024 * 1024}

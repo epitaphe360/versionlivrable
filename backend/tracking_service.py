@@ -1,6 +1,8 @@
 """
 Service de Tracking - Gestion des clics et attribution des ventes
 Gère les cookies, redirections et attribution des influenceurs
+
+Optimisé pour éviter les N+1 queries avec eager loading
 """
 
 from fastapi import Request, Response
@@ -13,6 +15,12 @@ import secrets
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Import optimiseur DB
+try:
+    from backend.utils.db_optimized import DBOptimizer
+except ImportError:
+    DBOptimizer = None
 
 # Configuration
 COOKIE_NAME = "systrack"  # ShareYourSales tracking

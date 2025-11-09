@@ -4,6 +4,7 @@
  * Avec RTL (Right-to-Left) pour arabe
  */
 
+import { logger } from './utils/logger';
 import { createContext, useContext, useState, useEffect } from 'react';
 
 // ============================================
@@ -130,7 +131,7 @@ class I18nService {
 
     // Si toujours pas trouvé, retourner la clé
     if (!translation) {
-      console.warn(`Traduction manquante: ${key} (${lang})`);
+      logger.warning(`Traduction manquante: ${key} (${lang})`);
       return key;
     }
 

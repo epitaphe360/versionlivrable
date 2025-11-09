@@ -7,6 +7,8 @@ import {
   Link as LinkIcon, Settings, MousePointer, MessageSquare,
   Percent, Eye, RefreshCw, Lock, Smartphone, Briefcase
 } from 'lucide-react';
+import SEOHead from '../components/SEO/SEOHead';
+import SEO_CONFIG from '../config/seo';
 
 /**
  * Homepage ShareYourSales - Version Complète
@@ -260,7 +262,9 @@ const HomepageV2 = () => {
   ];
 
   return (
-    <div className="w-full">
+    <>
+      <SEOHead {...SEO_CONFIG.homepage} />
+      <div className="w-full">
       {/* Header Sticky avec Navigation Complète */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -810,7 +814,8 @@ const HomepageV2 = () => {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 };
 

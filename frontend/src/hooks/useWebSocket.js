@@ -1,3 +1,4 @@
+import { logger } from './utils/logger';
 import { useEffect, useRef, useCallback, useState } from 'react';
 
 /**
@@ -62,7 +63,7 @@ export const useWebSocket = (url, options = {}) => {
     if (wsRef.current && wsRef.current.readyState === WS_STATES.OPEN) {
       wsRef.current.send(JSON.stringify(data));
     } else {
-      console.warn('WebSocket is not connected');
+      logger.warning('WebSocket is not connected');
     }
   }, []);
 
@@ -97,7 +98,6 @@ export const useWebSocket = (url, options = {}) => {
       const ws = new WebSocket(url);
 
       ws.onopen = (event) => {
-        console.log('WebSocket connected');
         setReadyState(WS_STATES.OPEN);
         reconnectCountRef.current = 0;
         startHeartbeat();
@@ -105,7 +105,6 @@ export const useWebSocket = (url, options = {}) => {
       };
 
       ws.onclose = (event) => {
-        console.log('WebSocket disconnected');
         setReadyState(WS_STATES.CLOSED);
         stopHeartbeat();
         onClose?.(event);
@@ -113,7 +112,6 @@ export const useWebSocket = (url, options = {}) => {
         // Auto-reconnect
         if (reconnectCountRef.current < reconnectAttempts) {
           reconnectCountRef.current += 1;
-          console.log(`Reconnecting... Attempt ${reconnectCountRef.current}`);
           reconnectTimeoutRef.current = setTimeout(() => {
             connect();
           }, reconnectInterval);

@@ -165,8 +165,7 @@ const ChatbotWidget = ({ user, language = 'fr' }) => {
 
   const handleFeedback = async (messageIndex, rating) => {
     // TODO: Envoyer feedback au backend
-    console.log('Feedback:', messageIndex, rating);
-  };
+    };
 
   const clearChat = () => {
     setMessages([

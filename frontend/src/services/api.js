@@ -36,7 +36,6 @@ api.interceptors.response.use(
 
       // Éviter les boucles de redirection
       if (!window.location.pathname.includes('/login')) {
-        console.log('🔄 Redirection vers /login?session_expired=true');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/login?session_expired=true';

@@ -18,6 +18,7 @@ from datetime import datetime
 from supabase import create_client, Client
 import os
 from auth import get_current_user
+from backend.utils.db_safe import safe_ilike
 
 router = APIRouter(prefix="/api/influencers", tags=["Influencers Directory"])
 
@@ -456,7 +457,7 @@ async def search_influencers(
                 query = query.gt("youtube_subscribers", 0)
 
         if city:
-            query = query.ilike("city", f"%{city}%")
+            query = safe_ilike(query, "city", city, wildcard="both")
 
         if min_followers is not None:
             query = query.gte("total_followers", min_followers)

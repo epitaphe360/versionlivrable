@@ -18,6 +18,7 @@ from datetime import datetime
 from supabase import create_client, Client
 import os
 from auth import get_current_user
+from backend.utils.db_safe import safe_ilike
 
 router = APIRouter(prefix="/api/commercials", tags=["Commercials Directory"])
 
@@ -350,7 +351,7 @@ async def search_commercials(
             query = query.contains("industries", [industry])
 
         if city:
-            query = query.ilike("city", f"%{city}%")
+            query = safe_ilike(query, "city", city, wildcard="both")
 
         if availability_type:
             query = query.eq("availability_type", availability_type)

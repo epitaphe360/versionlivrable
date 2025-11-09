@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import api from '../utils/api';
 import Card from '../components/common/Card';
+import SEOHead from '../components/SEO/SEOHead';
+import SEO_CONFIG from '../config/seo';
 import {
   Mail, Phone, MapPin, Send, MessageSquare,
   HelpCircle, Users, Briefcase, Gift,
@@ -154,7 +156,9 @@ const Contact = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <>
+      <SEOHead {...SEO_CONFIG.contact} />
+      <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Contactez-Nous</h1>
@@ -402,7 +406,8 @@ const Contact = () => {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

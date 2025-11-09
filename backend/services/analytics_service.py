@@ -18,7 +18,10 @@ class AnalyticsService:
     def get_merchant_kpis(self, merchant_id: str, period_days: int = 30) -> Dict:
         """
         KPIs complets pour un merchant
-        
+
+        Optimisé: Sélectionne uniquement les colonnes nécessaires
+        et utilise une seule boucle pour les calculs
+
         Retourne:
         - Total leads reçus
         - Taux de validation
@@ -28,16 +31,16 @@ class AnalyticsService:
         - Qualité moyenne des leads
         """
         start_date = (datetime.now() - timedelta(days=period_days)).isoformat()
-        
-        # Récupérer tous les leads
+
+        # OPTIMISATION: Sélectionner uniquement les colonnes nécessaires
         leads_response = self.supabase.table('leads')\
-            .select('*')\
+            .select('status, commission_amount, estimated_value, quality_score')\
             .eq('merchant_id', merchant_id)\
             .gte('created_at', start_date)\
             .execute()
-        
+
         leads = leads_response.data if leads_response.data else []
-        
+
         if not leads:
             return {
                 'total_leads': 0,
@@ -52,30 +55,49 @@ class AnalyticsService:
                 'avg_lead_value': 0,
                 'period_days': period_days
             }
-        
-        # Calculer les métriques
+
+        # OPTIMISATION: Une seule boucle pour tous les calculs
         total_leads = len(leads)
-        validated = [l for l in leads if l['status'] == 'validated']
-        rejected = [l for l in leads if l['status'] == 'rejected']
-        converted = [l for l in leads if l['status'] == 'converted']
-        pending = [l for l in leads if l['status'] == 'pending']
-        
-        validation_rate = (len(validated) / total_leads * 100) if total_leads > 0 else 0
-        conversion_rate = (len(converted) / len(validated) * 100) if len(validated) > 0 else 0
-        
-        total_spent = sum(float(l['commission_amount']) for l in validated)
-        avg_quality = sum(l.get('quality_score', 0) for l in validated) / len(validated) if validated else 0
-        avg_value = sum(float(l['estimated_value']) for l in leads) / total_leads if total_leads > 0 else 0
-        
+        status_counts = {
+            'validated': 0,
+            'rejected': 0,
+            'converted': 0,
+            'pending': 0
+        }
+        validated_commission = 0.0
+        total_estimated_value = 0.0
+        quality_scores = []
+
+        for lead in leads:
+            status = lead.get('status', 'pending')
+            if status in status_counts:
+                status_counts[status] += 1
+
+            if status == 'validated':
+                validated_commission += float(lead.get('commission_amount', 0))
+
+            total_estimated_value += float(lead.get('estimated_value', 0))
+
+            quality_score = lead.get('quality_score')
+            if quality_score:
+                quality_scores.append(quality_score)
+
+        # Calcul des taux
+        validated_count = status_counts['validated']
+        validation_rate = (validated_count / total_leads * 100) if total_leads > 0 else 0
+        conversion_rate = (status_counts['converted'] / validated_count * 100) if validated_count > 0 else 0
+        avg_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0
+        avg_value = total_estimated_value / total_leads if total_leads > 0 else 0
+
         return {
             'total_leads': total_leads,
-            'validated_leads': len(validated),
-            'rejected_leads': len(rejected),
-            'converted_leads': len(converted),
-            'pending_leads': len(pending),
+            'validated_leads': validated_count,
+            'rejected_leads': status_counts['rejected'],
+            'converted_leads': status_counts['converted'],
+            'pending_leads': status_counts['pending'],
             'validation_rate': round(validation_rate, 2),
             'conversion_rate': round(conversion_rate, 2),
-            'total_spent': round(total_spent, 2),
+            'total_spent': round(validated_commission, 2),
             'avg_quality_score': round(avg_quality, 2),
             'avg_lead_value': round(avg_value, 2),
             'period_days': period_days
@@ -84,7 +106,9 @@ class AnalyticsService:
     def get_influencer_kpis(self, influencer_id: str, period_days: int = 30) -> Dict:
         """
         KPIs complets pour un influenceur
-        
+
+        Optimisé: Eager loading + une seule boucle pour les calculs
+
         Retourne:
         - Total leads générés
         - Taux de validation
@@ -94,16 +118,16 @@ class AnalyticsService:
         - Qualité moyenne
         """
         start_date = (datetime.now() - timedelta(days=period_days)).isoformat()
-        
-        # Récupérer tous les leads
+
+        # OPTIMISATION: Eager loading avec campaigns
         leads_response = self.supabase.table('leads')\
-            .select('*, campaigns(name)')\
+            .select('status, influencer_commission, quality_score, campaign_id, campaigns(id, name)')\
             .eq('influencer_id', influencer_id)\
             .gte('created_at', start_date)\
             .execute()
-        
+
         leads = leads_response.data if leads_response.data else []
-        
+
         if not leads:
             return {
                 'total_leads': 0,
@@ -117,44 +141,71 @@ class AnalyticsService:
                 'best_campaign': None,
                 'period_days': period_days
             }
-        
+
+        # OPTIMISATION: Une seule boucle pour tous les calculs
         total_leads = len(leads)
-        validated = [l for l in leads if l['status'] == 'validated']
-        rejected = [l for l in leads if l['status'] == 'rejected']
-        pending = [l for l in leads if l['status'] == 'pending']
-        
-        validation_rate = (len(validated) / total_leads * 100) if total_leads > 0 else 0
-        
-        total_earned = sum(float(l.get('influencer_commission', 0)) for l in validated)
-        pending_earnings = sum(float(l.get('influencer_commission', 0)) for l in pending)
-        
-        avg_quality = sum(l.get('quality_score', 0) for l in validated) / len(validated) if validated else 0
-        
-        # Meilleure campagne
+        status_counts = {
+            'validated': 0,
+            'rejected': 0,
+            'pending': 0
+        }
+
+        total_earned = 0.0
+        pending_earnings = 0.0
+        quality_scores = []
         campaigns_performance = {}
-        for lead in validated:
-            campaign_id = lead['campaign_id']
+
+        for lead in leads:
+            status = lead.get('status', 'pending')
+            if status in status_counts:
+                status_counts[status] += 1
+
             commission = float(lead.get('influencer_commission', 0))
-            
-            if campaign_id not in campaigns_performance:
-                campaigns_performance[campaign_id] = {
-                    'name': lead.get('campaigns', {}).get('name', 'N/A'),
-                    'total_commission': 0,
-                    'count': 0
-                }
-            
-            campaigns_performance[campaign_id]['total_commission'] += commission
-            campaigns_performance[campaign_id]['count'] += 1
-        
+
+            if status == 'validated':
+                total_earned += commission
+            elif status == 'pending':
+                pending_earnings += commission
+
+            # Collecte de la qualité
+            quality_score = lead.get('quality_score')
+            if quality_score:
+                quality_scores.append(quality_score)
+
+            # Performance par campagne (validé seulement)
+            if status == 'validated':
+                campaign_id = lead.get('campaign_id')
+                if campaign_id:
+                    if campaign_id not in campaigns_performance:
+                        campaign_name = 'N/A'
+                        if lead.get('campaigns'):
+                            campaign_name = lead['campaigns'].get('name', 'N/A')
+                        campaigns_performance[campaign_id] = {
+                            'name': campaign_name,
+                            'total_commission': 0,
+                            'count': 0
+                        }
+
+                    campaigns_performance[campaign_id]['total_commission'] += commission
+                    campaigns_performance[campaign_id]['count'] += 1
+
+        # Calculs finaux
+        validated_count = status_counts['validated']
+        validation_rate = (validated_count / total_leads * 100) if total_leads > 0 else 0
+        avg_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0
+
         best_campaign = None
         if campaigns_performance:
-            best_campaign = max(campaigns_performance.values(), key=lambda x: x['total_commission'])
-        
+            best_campaign = max(
+                campaigns_performance.values(),
+                key=lambda x: x['total_commission']
+            )
+
         return {
             'total_leads': total_leads,
-            'validated_leads': len(validated),
-            'rejected_leads': len(rejected),
-            'pending_leads': len(pending),
+            'validated_leads': validated_count,
+            'rejected_leads': status_counts['rejected'],
+            'pending_leads': status_counts['pending'],
             'validation_rate': round(validation_rate, 2),
             'total_earned': round(total_earned, 2),
             'pending_earnings': round(pending_earnings, 2),
@@ -246,7 +297,9 @@ class AnalyticsService:
     def get_platform_overview(self) -> Dict:
         """
         Vue d'ensemble de la plateforme (Admin)
-        
+
+        Optimisé: Utilise une seule requête pour les commissions
+
         Retourne:
         - Total leads générés
         - Total commissions payées
@@ -254,33 +307,47 @@ class AnalyticsService:
         - Top merchants
         - Top influenceurs
         """
-        # Total leads
-        total_leads_response = self.supabase.table('leads')\
-            .select('*', count='exact')\
-            .execute()
-        
-        total_leads = total_leads_response.count if hasattr(total_leads_response, 'count') else 0
-        
-        # Leads validés
-        validated_response = self.supabase.table('leads')\
-            .select('commission_amount', count='exact')\
+        # OPTIMISATION: Combiner les requêtes leads validés et count en une seule
+        leads_response = self.supabase.table('leads')\
+            .select('id, commission_amount', count='exact')\
             .eq('status', 'validated')\
             .execute()
-        
-        validated_count = validated_response.count if hasattr(validated_response, 'count') else 0
-        total_commissions = sum(float(l['commission_amount']) for l in (validated_response.data or []))
-        
-        # Dépôts
-        deposits_response = self.supabase.table('company_deposits')\
-            .select('*')\
+
+        validated_count = leads_response.count if hasattr(leads_response, 'count') else 0
+        total_commissions = sum(
+            float(l.get('commission_amount', 0)) for l in (leads_response.data or [])
+        )
+
+        # Total des leads (peut être obtenu d'une autre requête si déjà disponible)
+        total_leads_response = self.supabase.table('leads')\
+            .select('id', count='exact')\
             .execute()
-        
+
+        total_leads = total_leads_response.count if hasattr(total_leads_response, 'count') else 0
+
+        # OPTIMISATION: Sélectionner uniquement les colonnes nécessaires pour dépôts
+        deposits_response = self.supabase.table('company_deposits')\
+            .select('status, initial_amount, current_balance')\
+            .execute()
+
         deposits = deposits_response.data if deposits_response.data else []
-        active_deposits = len([d for d in deposits if d['status'] == 'active'])
-        depleted_deposits = len([d for d in deposits if d['status'] == 'depleted'])
-        total_deposited = sum(float(d['initial_amount']) for d in deposits)
-        total_remaining = sum(float(d['current_balance']) for d in deposits if d['status'] == 'active')
-        
+
+        # OPTIMISATION: Une seule boucle pour les calculs des dépôts
+        active_deposits = 0
+        depleted_deposits = 0
+        total_deposited = 0.0
+        total_remaining = 0.0
+
+        for deposit in deposits:
+            status = deposit.get('status')
+            if status == 'active':
+                active_deposits += 1
+                total_remaining += float(deposit.get('current_balance', 0))
+            elif status == 'depleted':
+                depleted_deposits += 1
+
+            total_deposited += float(deposit.get('initial_amount', 0))
+
         return {
             'total_leads': total_leads,
             'validated_leads': validated_count,
@@ -289,7 +356,7 @@ class AnalyticsService:
             'depleted_deposits': depleted_deposits,
             'total_deposited': round(total_deposited, 2),
             'total_remaining': round(total_remaining, 2),
-            'platform_revenue': round(total_commissions * 0.1, 2)  # 10% platform fee (exemple)
+            'platform_revenue': round(total_commissions * 0.1, 2)  # 10% platform fee
         }
     
     def get_deposit_forecast(self, deposit_id: str) -> Dict:

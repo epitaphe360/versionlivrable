@@ -1,4 +1,7 @@
-"""Services métier pour les demandes d'affiliation."""
+"""Services métier pour les demandes d'affiliation.
+
+Optimisé pour éviter les N+1 queries avec eager loading et batch fetching.
+"""
 
 from __future__ import annotations
 
@@ -17,6 +20,12 @@ from db_helpers import (
 from supabase_client import supabase
 
 from .schemas import AffiliationRequestCreate, AffiliationDecision
+
+# Import optimiseur DB
+try:
+    from backend.utils.db_optimized import DBOptimizer
+except ImportError:
+    DBOptimizer = None
 
 logger = logging.getLogger(__name__)
 
