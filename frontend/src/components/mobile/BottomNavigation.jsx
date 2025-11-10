@@ -164,14 +164,15 @@ const NavItem = ({ item, isActive, onClick }) => {
   const Icon = item.icon;
 
   if (item.highlighted) {
-    // Center floating action button
+    // Center floating action button - 64px (> 48px minimum touch target)
     return (
       <button
         onClick={onClick}
-        className="relative -mt-8 active:scale-95 transition"
+        aria-label={item.label}
+        className="relative -mt-8 active:scale-95 transition min-w-[48px] min-h-[48px]"
       >
         <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-xl">
-          <Icon className="h-7 w-7 text-white" />
+          <Icon className="h-7 w-7 text-white" aria-hidden="true" />
         </div>
       </button>
     );
@@ -180,18 +181,20 @@ const NavItem = ({ item, isActive, onClick }) => {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center justify-center py-2 px-3 rounded-xl transition ${
+      aria-label={item.label}
+      aria-current={isActive ? 'page' : undefined}
+      className={`flex flex-col items-center justify-center py-2 px-3 rounded-xl transition min-w-[48px] min-h-[48px] ${
         isActive
           ? 'text-blue-600'
           : 'text-gray-500 hover:text-gray-700 active:bg-gray-100'
       }`}
     >
-      <Icon className={`h-6 w-6 mb-1 ${isActive ? 'stroke-2' : 'stroke-1.5'}`} />
+      <Icon className={`h-6 w-6 mb-1 ${isActive ? 'stroke-2' : 'stroke-1.5'}`} aria-hidden="true" />
       <span className={`text-xs font-medium ${isActive ? 'font-semibold' : ''}`}>
         {item.label}
       </span>
       {isActive && (
-        <div className="absolute bottom-0 w-1 h-1 bg-blue-600 rounded-full"></div>
+        <div className="absolute bottom-0 w-1 h-1 bg-blue-600 rounded-full" aria-hidden="true"></div>
       )}
     </button>
   );

@@ -13,7 +13,8 @@ from services.sales.service import SalesService
 # ============================================================================
 
 
-def test_sales_service_init(mock_supabase):
+@pytest.mark.asyncio
+async def test_sales_service_init(mock_supabase):
     """Test initialisation du service"""
     service = SalesService()
     assert service.supabase == mock_supabase
@@ -26,14 +27,14 @@ def test_sales_service_init(mock_supabase):
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_create_sale_success(mock_supabase, sample_sale_request, sample_sale):
+async def test_create_sale_success(mock_supabase, sample_sale_request, sample_sale):
     """Test création de vente réussie"""
     # Arrange
     mock_supabase.rpc.return_value.execute.return_value.data = sample_sale
     service = SalesService()
 
     # Act
-    result = service.create_sale(**sample_sale_request)
+    result = await service.create_sale(**sample_sale_request)
 
     # Assert
     assert result == sample_sale
@@ -46,7 +47,7 @@ def test_create_sale_success(mock_supabase, sample_sale_request, sample_sale):
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_create_sale_invalid_link(mock_supabase, sample_sale_request, mock_postgres_error):
+async def test_create_sale_invalid_link(mock_supabase, sample_sale_request, mock_postgres_error):
     """Test création avec lien invalide"""
     # Arrange
     error = mock_postgres_error("P0001", "Invalid trackable link")
@@ -62,7 +63,7 @@ def test_create_sale_invalid_link(mock_supabase, sample_sale_request, mock_postg
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_create_sale_negative_amount(mock_supabase, sample_sale_request):
+async def test_create_sale_negative_amount(mock_supabase, sample_sale_request):
     """Test création avec montant négatif"""
     # Arrange
     service = SalesService()
@@ -75,7 +76,7 @@ def test_create_sale_negative_amount(mock_supabase, sample_sale_request):
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_create_sale_missing_link_id(mock_supabase, sample_sale_request):
+async def test_create_sale_missing_link_id(mock_supabase, sample_sale_request):
     """Test création sans link_id"""
     # Arrange
     service = SalesService()
@@ -88,7 +89,7 @@ def test_create_sale_missing_link_id(mock_supabase, sample_sale_request):
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_create_sale_database_error(mock_supabase, sample_sale_request):
+async def test_create_sale_database_error(mock_supabase, sample_sale_request):
     """Test gestion erreur base de données"""
     # Arrange
     mock_supabase.rpc.return_value.execute.side_effect = Exception("Database connection error")
@@ -106,7 +107,7 @@ def test_create_sale_database_error(mock_supabase, sample_sale_request):
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_get_sale_by_id_success(mock_supabase, sample_sale_id, sample_sale):
+async def test_get_sale_by_id_success(mock_supabase, sample_sale_id, sample_sale):
     """Test récupération vente par ID"""
     # Arrange
     mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value.data = [
@@ -115,7 +116,7 @@ def test_get_sale_by_id_success(mock_supabase, sample_sale_id, sample_sale):
     service = SalesService()
 
     # Act
-    result = service.get_sale_by_id(sample_sale_id)
+    result = await service.get_sale_by_id(sample_sale_id)
 
     # Assert
     assert result == sample_sale
@@ -124,7 +125,7 @@ def test_get_sale_by_id_success(mock_supabase, sample_sale_id, sample_sale):
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_get_sale_by_id_not_found(mock_supabase, sample_sale_id):
+async def test_get_sale_by_id_not_found(mock_supabase, sample_sale_id):
     """Test vente non trouvée"""
     # Arrange
     mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value.data = (
@@ -133,7 +134,7 @@ def test_get_sale_by_id_not_found(mock_supabase, sample_sale_id):
     service = SalesService()
 
     # Act
-    result = service.get_sale_by_id(sample_sale_id)
+    result = await service.get_sale_by_id(sample_sale_id)
 
     # Assert
     assert result is None
@@ -141,7 +142,7 @@ def test_get_sale_by_id_not_found(mock_supabase, sample_sale_id):
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_get_sale_by_id_invalid_uuid(mock_supabase):
+async def test_get_sale_by_id_invalid_uuid(mock_supabase):
     """Test avec UUID invalide"""
     # Arrange
     service = SalesService()
@@ -158,7 +159,7 @@ def test_get_sale_by_id_invalid_uuid(mock_supabase):
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_get_sales_by_influencer_success(mock_supabase, sample_influencer_id, sample_sale):
+async def test_get_sales_by_influencer_success(mock_supabase, sample_influencer_id, sample_sale):
     """Test récupération ventes par influenceur"""
     # Arrange
     sales_list = [sample_sale, {**sample_sale, "id": str(uuid4())}]
@@ -168,7 +169,7 @@ def test_get_sales_by_influencer_success(mock_supabase, sample_influencer_id, sa
     service = SalesService()
 
     # Act
-    result = service.get_sales_by_influencer(sample_influencer_id, limit=10, offset=0)
+    result = await service.get_sales_by_influencer(sample_influencer_id, limit=10, offset=0)
 
     # Assert
     assert len(result) == 2
@@ -177,7 +178,7 @@ def test_get_sales_by_influencer_success(mock_supabase, sample_influencer_id, sa
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_get_sales_by_influencer_with_status_filter(
+async def test_get_sales_by_influencer_with_status_filter(
     mock_supabase, sample_influencer_id, sample_sale
 ):
     """Test filtrage par statut"""
@@ -188,7 +189,7 @@ def test_get_sales_by_influencer_with_status_filter(
     service = SalesService()
 
     # Act
-    result = service.get_sales_by_influencer(sample_influencer_id, status="completed")
+    result = await service.get_sales_by_influencer(sample_influencer_id, status="completed")
 
     # Assert
     assert len(result) == 1
@@ -196,7 +197,7 @@ def test_get_sales_by_influencer_with_status_filter(
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_get_sales_by_influencer_empty_result(mock_supabase, sample_influencer_id):
+async def test_get_sales_by_influencer_empty_result(mock_supabase, sample_influencer_id):
     """Test aucune vente trouvée"""
     # Arrange
     mock_supabase.table.return_value.select.return_value.eq.return_value.order.return_value.execute.return_value.data = (
@@ -205,7 +206,7 @@ def test_get_sales_by_influencer_empty_result(mock_supabase, sample_influencer_i
     service = SalesService()
 
     # Act
-    result = service.get_sales_by_influencer(sample_influencer_id)
+    result = await service.get_sales_by_influencer(sample_influencer_id)
 
     # Assert
     assert result == []
@@ -218,7 +219,7 @@ def test_get_sales_by_influencer_empty_result(mock_supabase, sample_influencer_i
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_get_sales_by_merchant_success(mock_supabase, sample_merchant_id, sample_sale):
+async def test_get_sales_by_merchant_success(mock_supabase, sample_merchant_id, sample_sale):
     """Test récupération ventes par merchant"""
     # Arrange
     sales_list = [sample_sale]
@@ -228,7 +229,7 @@ def test_get_sales_by_merchant_success(mock_supabase, sample_merchant_id, sample
     service = SalesService()
 
     # Act
-    result = service.get_sales_by_merchant(sample_merchant_id)
+    result = await service.get_sales_by_merchant(sample_merchant_id)
 
     # Assert
     assert result == sales_list
@@ -236,7 +237,7 @@ def test_get_sales_by_merchant_success(mock_supabase, sample_merchant_id, sample
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_get_sales_by_merchant_pagination(mock_supabase, sample_merchant_id, sample_sale):
+async def test_get_sales_by_merchant_pagination(mock_supabase, sample_merchant_id, sample_sale):
     """Test pagination des résultats"""
     # Arrange
     mock_query = (
@@ -246,7 +247,7 @@ def test_get_sales_by_merchant_pagination(mock_supabase, sample_merchant_id, sam
     service = SalesService()
 
     # Act
-    result = service.get_sales_by_merchant(sample_merchant_id, limit=5, offset=10)
+    result = await service.get_sales_by_merchant(sample_merchant_id, limit=5, offset=10)
 
     # Assert
     mock_query.limit.assert_called_once_with(5)
@@ -260,7 +261,7 @@ def test_get_sales_by_merchant_pagination(mock_supabase, sample_merchant_id, sam
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_update_sale_status_success(mock_supabase, sample_sale_id, sample_sale):
+async def test_update_sale_status_success(mock_supabase, sample_sale_id, sample_sale):
     """Test mise à jour statut vente"""
     # Arrange
     updated_sale = {**sample_sale, "status": "refunded"}
@@ -270,7 +271,7 @@ def test_update_sale_status_success(mock_supabase, sample_sale_id, sample_sale):
     service = SalesService()
 
     # Act
-    result = service.update_sale_status(sample_sale_id, "refunded")
+    result = await service.update_sale_status(sample_sale_id, "refunded")
 
     # Assert
     assert result["status"] == "refunded"
@@ -279,7 +280,7 @@ def test_update_sale_status_success(mock_supabase, sample_sale_id, sample_sale):
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_update_sale_status_invalid_status(mock_supabase, sample_sale_id):
+async def test_update_sale_status_invalid_status(mock_supabase, sample_sale_id):
     """Test statut invalide"""
     # Arrange
     service = SalesService()
@@ -291,7 +292,7 @@ def test_update_sale_status_invalid_status(mock_supabase, sample_sale_id):
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_update_sale_status_not_found(mock_supabase, sample_sale_id):
+async def test_update_sale_status_not_found(mock_supabase, sample_sale_id):
     """Test vente non trouvée lors de la mise à jour"""
     # Arrange
     mock_supabase.table.return_value.update.return_value.eq.return_value.execute.return_value.data = (
@@ -300,7 +301,7 @@ def test_update_sale_status_not_found(mock_supabase, sample_sale_id):
     service = SalesService()
 
     # Act
-    result = service.update_sale_status(sample_sale_id, "refunded")
+    result = await service.update_sale_status(sample_sale_id, "refunded")
 
     # Assert
     assert result is None
@@ -313,7 +314,7 @@ def test_update_sale_status_not_found(mock_supabase, sample_sale_id):
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_create_sale_with_all_optional_params(mock_supabase, sample_sale_request, sample_sale):
+async def test_create_sale_with_all_optional_params(mock_supabase, sample_sale_request, sample_sale):
     """Test création avec tous les paramètres optionnels"""
     # Arrange
     mock_supabase.rpc.return_value.execute.return_value.data = sample_sale
@@ -327,7 +328,7 @@ def test_create_sale_with_all_optional_params(mock_supabase, sample_sale_request
     }
 
     # Act
-    result = service.create_sale(**full_request)
+    result = await service.create_sale(**full_request)
 
     # Assert
     assert result == sample_sale
@@ -335,7 +336,7 @@ def test_create_sale_with_all_optional_params(mock_supabase, sample_sale_request
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_get_sales_by_influencer_large_dataset(mock_supabase, sample_influencer_id, sample_sale):
+async def test_get_sales_by_influencer_large_dataset(mock_supabase, sample_influencer_id, sample_sale):
     """Test performance avec grand nombre de résultats"""
     # Arrange
     large_dataset = [{**sample_sale, "id": str(uuid4())} for _ in range(100)]
@@ -345,7 +346,7 @@ def test_get_sales_by_influencer_large_dataset(mock_supabase, sample_influencer_
     service = SalesService()
 
     # Act
-    result = service.get_sales_by_influencer(sample_influencer_id, limit=100)
+    result = await service.get_sales_by_influencer(sample_influencer_id, limit=100)
 
     # Assert
     assert len(result) == 100
@@ -353,7 +354,7 @@ def test_get_sales_by_influencer_large_dataset(mock_supabase, sample_influencer_
 
 @pytest.mark.unit
 @pytest.mark.sales
-def test_concurrent_sale_creation(mock_supabase, sample_sale_request, sample_sale):
+async def test_concurrent_sale_creation(mock_supabase, sample_sale_request, sample_sale):
     """Test création simultanée de ventes (simulation)"""
     # Arrange
     mock_supabase.rpc.return_value.execute.return_value.data = sample_sale
@@ -362,7 +363,7 @@ def test_concurrent_sale_creation(mock_supabase, sample_sale_request, sample_sal
     # Act - Simuler 3 créations concurrentes
     results = []
     for _ in range(3):
-        result = service.create_sale(**sample_sale_request)
+        result = await service.create_sale(**sample_sale_request)
         results.append(result)
 
     # Assert

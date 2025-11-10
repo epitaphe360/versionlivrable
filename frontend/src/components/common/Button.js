@@ -1,13 +1,14 @@
 import React from 'react';
 
-const Button = ({ 
-  children, 
-  onClick, 
-  variant = 'primary', 
-  size = 'md', 
+const Button = ({
+  children,
+  onClick,
+  variant = 'primary',
+  size = 'md',
   disabled = false,
   className = '',
-  type = 'button'
+  type = 'button',
+  ariaLabel
 }) => {
   const baseClasses = 'font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
   
@@ -32,6 +33,7 @@ const Button = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
+      aria-label={ariaLabel}
       className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${disabledClasses} ${className}`}
     >
       {children}

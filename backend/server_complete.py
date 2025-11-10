@@ -229,16 +229,35 @@ app = FastAPI(
 # MIDDLEWARE
 # ============================================
 
-# Récupérer CORS origins depuis les variables d'environnement
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8000").split(",")
-print(f"🔐 CORS Origins configurés: {cors_origins}")
+# CORS Configuration - Environment-specific whitelist for security
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+
+if ENVIRONMENT == "production":
+    allowed_origins = [
+        "https://shareyoursales.ma",
+        "https://www.shareyoursales.ma",
+        "https://app.shareyoursales.ma",
+    ]
+elif ENVIRONMENT == "staging":
+    allowed_origins = [
+        "https://staging.shareyoursales.ma",
+        "https://staging-app.shareyoursales.ma",
+        "http://localhost:3000",
+        "http://localhost:3001",
+    ]
+else:  # development
+    # Allow configured origins from env or default localhost
+    cors_origins_env = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8000")
+    allowed_origins = cors_origins_env.split(",")
+
+print(f"🔐 CORS Origins configured for {ENVIRONMENT}: {allowed_origins}")
 
 # CORS Configuration - Must be added FIRST
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En développement, autoriser toutes les origins
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
     expose_headers=["*"]
 )

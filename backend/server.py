@@ -246,12 +246,36 @@ from webhook_service import webhook_service
 # Initialiser les services
 payment_service = AutoPaymentService()
 
-# CORS configuration - Allow all localhost origins
+# CORS configuration - Whitelist approach for security
+# Environment-specific allowed origins
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+
+if ENVIRONMENT == "production":
+    allowed_origins = [
+        "https://shareyoursales.ma",
+        "https://www.shareyoursales.ma",
+        "https://app.shareyoursales.ma",
+    ]
+elif ENVIRONMENT == "staging":
+    allowed_origins = [
+        "https://staging.shareyoursales.ma",
+        "https://staging-app.shareyoursales.ma",
+        "http://localhost:3000",
+        "http://localhost:3001",
+    ]
+else:  # development
+    allowed_origins = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+    ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins in development
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -1896,6 +1920,16 @@ async def startup_event():
     """Événement de démarrage - Lance le scheduler"""
     print("🚀 Démarrage du serveur...")
     print("📊 Base de données: Supabase PostgreSQL")
+
+    # Initialize Sentry monitoring
+    try:
+        from middleware.monitoring import init_sentry, configure_logging
+        init_sentry()
+        configure_logging()
+        print("✅ Sentry monitoring initialized")
+    except Exception as e:
+        print(f"⚠️ Sentry initialization failed: {e}")
+
     print("⏰ Lancement du scheduler de paiements automatiques...")
     start_scheduler()
     print("✅ Scheduler actif")

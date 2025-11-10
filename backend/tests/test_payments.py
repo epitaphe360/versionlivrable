@@ -13,7 +13,8 @@ from services.payments.service import PaymentsService
 # ============================================================================
 
 
-def test_payments_service_init(mock_supabase):
+@pytest.mark.asyncio
+async def test_payments_service_init(mock_supabase):
     """Test initialisation du service"""
     service = PaymentsService()
     assert service.supabase is not None
@@ -26,14 +27,14 @@ def test_payments_service_init(mock_supabase):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_approve_commission_success(mock_supabase, sample_commission_id):
+async def test_approve_commission_success(mock_supabase, sample_commission_id):
     """Test approbation de commission réussie"""
     # Arrange
     mock_supabase.rpc.return_value.execute.return_value.data = True
     service = PaymentsService()
 
     # Act
-    result = service.approve_commission(sample_commission_id)
+    result = await service.approve_commission(sample_commission_id)
 
     # Assert
     assert result is True
@@ -45,7 +46,7 @@ def test_approve_commission_success(mock_supabase, sample_commission_id):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_approve_commission_already_approved(
+async def test_approve_commission_already_approved(
     mock_supabase, sample_commission_id, mock_postgres_error
 ):
     """Test approbation d'une commission déjà approuvée"""
@@ -63,7 +64,7 @@ def test_approve_commission_already_approved(
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_approve_commission_not_found(mock_supabase, sample_commission_id, mock_postgres_error):
+async def test_approve_commission_not_found(mock_supabase, sample_commission_id, mock_postgres_error):
     """Test approbation commission inexistante"""
     # Arrange
     error = mock_postgres_error("P0001", "Commission not found")
@@ -79,7 +80,7 @@ def test_approve_commission_not_found(mock_supabase, sample_commission_id, mock_
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_approve_commission_invalid_uuid(mock_supabase):
+async def test_approve_commission_invalid_uuid(mock_supabase):
     """Test avec UUID invalide"""
     # Arrange
     service = PaymentsService()
@@ -96,14 +97,14 @@ def test_approve_commission_invalid_uuid(mock_supabase):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_pay_commission_success(mock_supabase, sample_commission_id):
+async def test_pay_commission_success(mock_supabase, sample_commission_id):
     """Test paiement de commission réussi"""
     # Arrange
     mock_supabase.rpc.return_value.execute.return_value.data = True
     service = PaymentsService()
 
     # Act
-    result = service.pay_commission(sample_commission_id)
+    result = await service.pay_commission(sample_commission_id)
 
     # Assert
     assert result is True
@@ -115,7 +116,7 @@ def test_pay_commission_success(mock_supabase, sample_commission_id):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_pay_commission_not_approved(mock_supabase, sample_commission_id, mock_postgres_error):
+async def test_pay_commission_not_approved(mock_supabase, sample_commission_id, mock_postgres_error):
     """Test paiement d'une commission non approuvée"""
     # Arrange
     error = mock_postgres_error("P0001", "Invalid status transition")
@@ -136,14 +137,14 @@ def test_pay_commission_not_approved(mock_supabase, sample_commission_id, mock_p
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_reject_commission_success(mock_supabase, sample_commission_id):
+async def test_reject_commission_success(mock_supabase, sample_commission_id):
     """Test rejet de commission réussi"""
     # Arrange
     mock_supabase.rpc.return_value.execute.return_value.data = True
     service = PaymentsService()
 
     # Act
-    result = service.reject_commission(sample_commission_id)
+    result = await service.reject_commission(sample_commission_id)
 
     # Assert
     assert result is True
@@ -151,7 +152,7 @@ def test_reject_commission_success(mock_supabase, sample_commission_id):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_reject_commission_already_paid(mock_supabase, sample_commission_id, mock_postgres_error):
+async def test_reject_commission_already_paid(mock_supabase, sample_commission_id, mock_postgres_error):
     """Test rejet d'une commission déjà payée"""
     # Arrange
     error = mock_postgres_error("P0001", "Cannot reject paid commission")
@@ -172,7 +173,7 @@ def test_reject_commission_already_paid(mock_supabase, sample_commission_id, moc
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_get_commission_by_id_success(mock_supabase, sample_commission_id, sample_commission):
+async def test_get_commission_by_id_success(mock_supabase, sample_commission_id, sample_commission):
     """Test récupération commission par ID"""
     # Arrange
     mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value.data = [
@@ -181,7 +182,7 @@ def test_get_commission_by_id_success(mock_supabase, sample_commission_id, sampl
     service = PaymentsService()
 
     # Act
-    result = service.get_commission_by_id(sample_commission_id)
+    result = await service.get_commission_by_id(sample_commission_id)
 
     # Assert
     assert result == sample_commission
@@ -190,7 +191,7 @@ def test_get_commission_by_id_success(mock_supabase, sample_commission_id, sampl
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_get_commission_by_id_not_found(mock_supabase, sample_commission_id):
+async def test_get_commission_by_id_not_found(mock_supabase, sample_commission_id):
     """Test commission non trouvée"""
     # Arrange
     mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value.data = (
@@ -199,7 +200,7 @@ def test_get_commission_by_id_not_found(mock_supabase, sample_commission_id):
     service = PaymentsService()
 
     # Act
-    result = service.get_commission_by_id(sample_commission_id)
+    result = await service.get_commission_by_id(sample_commission_id)
 
     # Assert
     assert result is None
@@ -212,7 +213,7 @@ def test_get_commission_by_id_not_found(mock_supabase, sample_commission_id):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_get_commissions_by_status_success(mock_supabase, sample_commission):
+async def test_get_commissions_by_status_success(mock_supabase, sample_commission):
     """Test récupération commissions par statut"""
     # Arrange
     commissions_list = [sample_commission, {**sample_commission, "id": str(uuid4())}]
@@ -222,7 +223,7 @@ def test_get_commissions_by_status_success(mock_supabase, sample_commission):
     service = PaymentsService()
 
     # Act
-    result = service.get_commissions_by_status("pending")
+    result = await service.get_commissions_by_status("pending")
 
     # Assert
     assert len(result) == 2
@@ -231,7 +232,7 @@ def test_get_commissions_by_status_success(mock_supabase, sample_commission):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_get_commissions_by_status_empty(mock_supabase):
+async def test_get_commissions_by_status_empty(mock_supabase):
     """Test aucune commission trouvée"""
     # Arrange
     mock_supabase.table.return_value.select.return_value.eq.return_value.order.return_value.execute.return_value.data = (
@@ -240,7 +241,7 @@ def test_get_commissions_by_status_empty(mock_supabase):
     service = PaymentsService()
 
     # Act
-    result = service.get_commissions_by_status("pending")
+    result = await service.get_commissions_by_status("pending")
 
     # Assert
     assert result == []
@@ -248,7 +249,7 @@ def test_get_commissions_by_status_empty(mock_supabase):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_get_commissions_by_status_invalid(mock_supabase):
+async def test_get_commissions_by_status_invalid(mock_supabase):
     """Test statut invalide"""
     # Arrange
     service = PaymentsService()
@@ -265,7 +266,7 @@ def test_get_commissions_by_status_invalid(mock_supabase):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_get_commissions_by_influencer_success(
+async def test_get_commissions_by_influencer_success(
     mock_supabase, sample_influencer_id, sample_commission
 ):
     """Test récupération commissions par influenceur"""
@@ -277,7 +278,7 @@ def test_get_commissions_by_influencer_success(
     service = PaymentsService()
 
     # Act
-    result = service.get_commissions_by_influencer(sample_influencer_id)
+    result = await service.get_commissions_by_influencer(sample_influencer_id)
 
     # Assert
     assert result == commissions_list
@@ -285,7 +286,7 @@ def test_get_commissions_by_influencer_success(
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_get_commissions_by_influencer_with_status_filter(
+async def test_get_commissions_by_influencer_with_status_filter(
     mock_supabase, sample_influencer_id, sample_commission
 ):
     """Test filtrage par statut"""
@@ -296,7 +297,7 @@ def test_get_commissions_by_influencer_with_status_filter(
     service = PaymentsService()
 
     # Act
-    result = service.get_commissions_by_influencer(sample_influencer_id, status="pending")
+    result = await service.get_commissions_by_influencer(sample_influencer_id, status="pending")
 
     # Assert
     assert len(result) == 1
@@ -309,7 +310,7 @@ def test_get_commissions_by_influencer_with_status_filter(
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_get_pending_commissions_total_success(mock_supabase, sample_influencer_id):
+async def test_get_pending_commissions_total_success(mock_supabase, sample_influencer_id):
     """Test total commissions pending"""
     # Arrange
     mock_response = [{"total": 150.50}]
@@ -317,7 +318,7 @@ def test_get_pending_commissions_total_success(mock_supabase, sample_influencer_
     service = PaymentsService()
 
     # Act
-    result = service.get_pending_commissions_total(sample_influencer_id)
+    result = await service.get_pending_commissions_total(sample_influencer_id)
 
     # Assert
     assert result == 150.50
@@ -325,7 +326,7 @@ def test_get_pending_commissions_total_success(mock_supabase, sample_influencer_
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_get_pending_commissions_total_zero(mock_supabase, sample_influencer_id):
+async def test_get_pending_commissions_total_zero(mock_supabase, sample_influencer_id):
     """Test total zéro"""
     # Arrange
     mock_response = [{"total": 0.0}]
@@ -333,7 +334,7 @@ def test_get_pending_commissions_total_zero(mock_supabase, sample_influencer_id)
     service = PaymentsService()
 
     # Act
-    result = service.get_pending_commissions_total(sample_influencer_id)
+    result = await service.get_pending_commissions_total(sample_influencer_id)
 
     # Assert
     assert result == 0.0
@@ -346,7 +347,7 @@ def test_get_pending_commissions_total_zero(mock_supabase, sample_influencer_id)
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_get_approved_commissions_total_success(mock_supabase, sample_influencer_id):
+async def test_get_approved_commissions_total_success(mock_supabase, sample_influencer_id):
     """Test total commissions approved"""
     # Arrange
     mock_response = [{"total": 250.75}]
@@ -354,7 +355,7 @@ def test_get_approved_commissions_total_success(mock_supabase, sample_influencer
     service = PaymentsService()
 
     # Act
-    result = service.get_approved_commissions_total(sample_influencer_id)
+    result = await service.get_approved_commissions_total(sample_influencer_id)
 
     # Assert
     assert result == 250.75
@@ -367,7 +368,7 @@ def test_get_approved_commissions_total_success(mock_supabase, sample_influencer
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_batch_approve_commissions_success(mock_supabase):
+async def test_batch_approve_commissions_success(mock_supabase):
     """Test approbation en lot réussie"""
     # Arrange
     commission_ids = [str(uuid4()) for _ in range(5)]
@@ -375,7 +376,7 @@ def test_batch_approve_commissions_success(mock_supabase):
     service = PaymentsService()
 
     # Act
-    results = service.batch_approve_commissions(commission_ids)
+    results = await service.batch_approve_commissions(commission_ids)
 
     # Assert
     assert len(results["success"]) == 5
@@ -385,7 +386,7 @@ def test_batch_approve_commissions_success(mock_supabase):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_batch_approve_commissions_partial_failure(mock_supabase, mock_postgres_error):
+async def test_batch_approve_commissions_partial_failure(mock_supabase, mock_postgres_error):
     """Test approbation en lot avec échecs partiels"""
     # Arrange
     commission_ids = [str(uuid4()) for _ in range(3)]
@@ -402,7 +403,7 @@ def test_batch_approve_commissions_partial_failure(mock_supabase, mock_postgres_
     service = PaymentsService()
 
     # Act
-    results = service.batch_approve_commissions(commission_ids)
+    results = await service.batch_approve_commissions(commission_ids)
 
     # Assert
     assert len(results["success"]) == 2
@@ -411,13 +412,13 @@ def test_batch_approve_commissions_partial_failure(mock_supabase, mock_postgres_
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_batch_approve_commissions_empty_list(mock_supabase):
+async def test_batch_approve_commissions_empty_list(mock_supabase):
     """Test approbation en lot avec liste vide"""
     # Arrange
     service = PaymentsService()
 
     # Act
-    results = service.batch_approve_commissions([])
+    results = await service.batch_approve_commissions([])
 
     # Assert
     assert results["success"] == []
@@ -427,7 +428,7 @@ def test_batch_approve_commissions_empty_list(mock_supabase):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_batch_approve_commissions_large_batch(mock_supabase):
+async def test_batch_approve_commissions_large_batch(mock_supabase):
     """Test approbation en lot avec grand nombre de commissions"""
     # Arrange
     commission_ids = [str(uuid4()) for _ in range(100)]
@@ -435,7 +436,7 @@ def test_batch_approve_commissions_large_batch(mock_supabase):
     service = PaymentsService()
 
     # Act
-    results = service.batch_approve_commissions(commission_ids)
+    results = await service.batch_approve_commissions(commission_ids)
 
     # Assert
     assert len(results["success"]) == 100
@@ -449,14 +450,14 @@ def test_batch_approve_commissions_large_batch(mock_supabase):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_approve_commission_transition_pending_to_approved(mock_supabase, sample_commission_id):
+async def test_approve_commission_transition_pending_to_approved(mock_supabase, sample_commission_id):
     """Test transition pending → approved"""
     # Arrange
     mock_supabase.rpc.return_value.execute.return_value.data = True
     service = PaymentsService()
 
     # Act
-    result = service.approve_commission(sample_commission_id)
+    result = await service.approve_commission(sample_commission_id)
 
     # Assert
     assert result is True
@@ -464,14 +465,14 @@ def test_approve_commission_transition_pending_to_approved(mock_supabase, sample
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_pay_commission_transition_approved_to_paid(mock_supabase, sample_commission_id):
+async def test_pay_commission_transition_approved_to_paid(mock_supabase, sample_commission_id):
     """Test transition approved → paid"""
     # Arrange
     mock_supabase.rpc.return_value.execute.return_value.data = True
     service = PaymentsService()
 
     # Act
-    result = service.pay_commission(sample_commission_id)
+    result = await service.pay_commission(sample_commission_id)
 
     # Assert
     assert result is True
@@ -479,7 +480,7 @@ def test_pay_commission_transition_approved_to_paid(mock_supabase, sample_commis
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_concurrent_commission_updates(mock_supabase):
+async def test_concurrent_commission_updates(mock_supabase):
     """Test mises à jour concurrentes (simulation)"""
     # Arrange
     commission_id = str(uuid4())
@@ -487,8 +488,8 @@ def test_concurrent_commission_updates(mock_supabase):
     service = PaymentsService()
 
     # Act - Simuler 2 approbations concurrentes
-    result1 = service.approve_commission(commission_id)
-    result2 = service.approve_commission(commission_id)
+    result1 = await service.approve_commission(commission_id)
+    result2 = await service.approve_commission(commission_id)
 
     # Assert
     assert result1 is True
@@ -498,7 +499,7 @@ def test_concurrent_commission_updates(mock_supabase):
 
 @pytest.mark.unit
 @pytest.mark.payments
-def test_get_commissions_summary(mock_supabase, sample_influencer_id):
+async def test_get_commissions_summary(mock_supabase, sample_influencer_id):
     """Test récupération résumé complet des commissions"""
     # Arrange
     mock_supabase.rpc.return_value.execute.return_value.data = [
@@ -509,8 +510,8 @@ def test_get_commissions_summary(mock_supabase, sample_influencer_id):
     service = PaymentsService()
 
     # Act
-    pending_total = service.get_pending_commissions_total(sample_influencer_id)
-    approved_total = service.get_approved_commissions_total(sample_influencer_id)
+    pending_total = await service.get_pending_commissions_total(sample_influencer_id)
+    approved_total = await service.get_approved_commissions_total(sample_influencer_id)
 
     # Assert
     assert pending_total >= 0
